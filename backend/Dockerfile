@@ -6,37 +6,34 @@ RUN apt-get update && apt-get install -y libvips-dev pkg-config
 
 WORKDIR /app
 
-# Copiamos go.mod y go.sum si existen
+# Construimos cache de modulos de Go primero
 COPY go.mod go.sum* ./
-# Intentamos descargar dependencias (el || true evita que falle si no hay modulo aun)
-RUN go mod download || true
+RUN go mod download
 
-# Copiamos el resto del codigo
+# Copiamos el codigo y compilamos
 COPY . .
-
-# Compilamos la aplicación (|| true para que construya la imagen incluso si no hay codigo todavia)
-RUN CGO_ENABLED=1 go build -o optipix-api ./cmd/server || echo "Build skipped, code missing" > optipix-api && chmod +x optipix-api
+RUN CGO_ENABLED=1 GOOS=linux go build -o optipix-api ./cmd/server
 
 # Runtime stage
 FROM debian:bookworm-slim
 
-# Instalar dependencias necesarias para runtime: libvips42, nodejs, npm, ffmpeg (para video)
-RUN apt-get update && apt-get install -y \
+# Instalar dependencias necesarias para runtime y limpiar cache de apt para una imagen mas ligera
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libvips42 \
     nodejs \
     npm \
     ffmpeg \
+    ca-certificates \
+    && npm install -g svgo \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
-# Instalar SVGO de forma global
-RUN npm install -g svgo
 
 WORKDIR /app
 
-# Copiar binario compilado (o el placeholder si falló)
+# Copiar el binario compilado desde el builder
 COPY --from=builder /app/optipix-api .
 
 EXPOSE 8090
 
-# Punto de entrada
+# Ejecutar el servicio
 CMD ["./optipix-api"]

@@ -2,12 +2,9 @@ package processor
 
 import (
 	"bytes"
+	"context"
 	"fmt"
-	"os"
 	"os/exec"
-	"path/filepath"
-
-	"github.com/google/uuid"
 )
 
 type SVGOptions struct {
@@ -31,34 +28,34 @@ func DefaultSVGOptions() SVGOptions {
 	}
 }
 
-func OptimizeSVG(input []byte, opts SVGOptions, tempDir, svgoPath string) (*SVGResult, error) {
-	id := uuid.New().String()
-	inPath := filepath.Join(tempDir, fmt.Sprintf("optipix-svg-in-%s.svg", id))
-	outPath := filepath.Join(tempDir, fmt.Sprintf("optipix-svg-out-%s.svg", id))
-
-	defer os.Remove(inPath)
-	defer os.Remove(outPath)
-
-	if err := os.WriteFile(inPath, input, 0600); err != nil {
-		return nil, fmt.Errorf("failed to write input svg: %w", err)
-	}
-
-	args := []string{inPath, "-o", outPath, fmt.Sprintf("--precision=%d", opts.Precision)}
+func OptimizeSVG(ctx context.Context, input []byte, opts SVGOptions, svgoPath string) (*SVGResult, error) {
+	// Usamos "-" que en Unix significa "Leer de Stdin / Escribir a Stdout"
+	args := []string{"-", "-o", "-", fmt.Sprintf("--precision=%d", opts.Precision)}
 	if opts.Multipass {
 		args = append(args, "--multipass")
 	}
 
-	cmd := exec.Command(svgoPath, args...)
+	// Usamos CommandContext para que el proceso de Node.js se mate automáticamente
+	// si el cliente web cancela la petición (ctx.Done())
+	cmd := exec.CommandContext(ctx, svgoPath, args...)
+
+	// El input (bytes) se conecta a la "entrada" estándar (stdin)
+	cmd.Stdin = bytes.NewReader(input)
+
+	// Preparamos un buffer en memoria para recolectar la salida
+	var out bytes.Buffer
+	cmd.Stdout = &out
+
+	// Y otro para recolectar errores en caso de que falle
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
+
 	if err := cmd.Run(); err != nil {
 		return nil, fmt.Errorf("svgo failed: %w, stderr: %s", err, stderr.String())
 	}
 
-	outputData, err := os.ReadFile(outPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read output svg: %w", err)
-	}
+	// Extraemos los bytes optimizados directamente desde la memoria
+	outputData := out.Bytes()
 
 	return &SVGResult{
 		Data:         outputData,

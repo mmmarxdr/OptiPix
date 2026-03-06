@@ -2,6 +2,7 @@ package processor
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 
@@ -54,7 +55,12 @@ func DefaultOptions() ImageOptions {
 	}
 }
 
-func OptimizeImage(input []byte, opts ImageOptions) (*OptimizeResult, error) {
+func OptimizeImage(ctx context.Context, input []byte, opts ImageOptions) (*OptimizeResult, error) {
+	// Verificar si el cliente ya cerró la conexión antes de arrancar a procesar
+	if err := ctx.Err(); err != nil {
+		return nil, fmt.Errorf("request cancelled before image processing: %w", err)
+	}
+
 	img, err := vips.NewImageFromBuffer(input)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load image: %w", err)
@@ -91,10 +97,10 @@ func OptimizeImage(input []byte, opts ImageOptions) (*OptimizeResult, error) {
 
 	// For govips, removing metadata is usually done via a method or during export strips
 	if opts.StripMetadata {
-		// govips might not export Get/RemoveMetadata correctly in all versions, 
+		// govips might not export Get/RemoveMetadata correctly in all versions,
 		// but typically it is handled correctly in the Export params.
-        // Still, we can attempt to remove metadata buffers if govips exposes it.
-        // Actually, setting it in ExportParams is usually enough.
+		// Still, we can attempt to remove metadata buffers if govips exposes it.
+		// Actually, setting it in ExportParams is usually enough.
 	}
 
 	var outputData []byte
@@ -114,8 +120,12 @@ func OptimizeImage(input []byte, opts ImageOptions) (*OptimizeResult, error) {
 		p.Lossless = opts.Lossless
 		// Govips defines explicit exported attributes, we configure what's standard.
 		p.Speed = 9 - opts.Effort
-		if p.Speed < 0 { p.Speed = 0 }
-		if p.Speed > 9 { p.Speed = 9 }
+		if p.Speed < 0 {
+			p.Speed = 0
+		}
+		if p.Speed > 9 {
+			p.Speed = 9
+		}
 		outputData, _, outputError = img.ExportAvif(p)
 	case FormatJPEG:
 		p := vips.NewJpegExportParams()

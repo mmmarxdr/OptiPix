@@ -1,22 +1,20 @@
 # Build stage
-FROM node:20-slim AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copiamos archivos de dependencias
+# Copiamos archivos de dependencias para aprovechar cache
 COPY package*.json ./
-
-# Instalamos (|| true para no fallar si no hay package.json todavia)
-RUN npm install || true
+RUN npm install
 
 # Copiamos el resto del codigo y construimos
 COPY . .
-RUN npm run build || mkdir -p dist && echo "Placeholder build" > dist/index.html
+RUN npm run build
 
 # Server stage con Nginx
-FROM nginx:alpine
+FROM nginx:alpine-slim
 
-# Configuracion de Nginx
+# Configuracion de Nginx (comentado si no existe nginx.conf, pero por defecto React necesita redirigir a index.html)
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Carpeta de salida del build

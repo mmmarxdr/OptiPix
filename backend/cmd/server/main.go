@@ -25,13 +25,13 @@ func main() {
 		log.Fatalf("failed to create temp dir: %v", err)
 	}
 
-	h := handler.New(cfg)
-	r := chi.NewRouter()
+	handler := handler.New(cfg)
+	router := chi.NewRouter()
 
-	r.Use(middleware.Logger)
-	r.Use(middleware.MaxBodySize(cfg.MaxUploadSize))
+	router.Use(middleware.Logger)
+	router.Use(middleware.MaxBodySize(cfg.MaxUploadSize))
 
-	r.Use(cors.Handler(cors.Options{
+	router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{cfg.CorsOrigin},
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Content-Type", "Content-Length", "Accept-Encoding"},
@@ -40,15 +40,15 @@ func main() {
 		MaxAge:           300,
 	}))
 
-	r.Get("/api/health", h.Health)
-	r.Get("/api/formats", h.Formats)
-	r.Post("/api/optimize", h.Optimize)
-	r.Post("/api/optimize/svg", h.OptimizeSVG)
-	r.Post("/api/batch", h.BatchOptimize)
+	router.Get("/api/health", handler.Health)
+	router.Get("/api/formats", handler.Formats)
+	router.Post("/api/optimize", handler.Optimize)
+	router.Post("/api/optimize/svg", handler.OptimizeSVG)
+	router.Post("/api/batch", handler.BatchOptimize)
 
-	srv := &http.Server{
+	server := &http.Server{
 		Addr:    ":" + cfg.Port,
-		Handler: r,
+		Handler: router,
 	}
 
 	// Graceful shutdown
@@ -59,7 +59,7 @@ func main() {
 		<-sigint
 
 		log.Println("Shutting down server...")
-		if err := srv.Close(); err != nil {
+		if err := server.Close(); err != nil {
 			log.Printf("Server Close Error: %v", err)
 		}
 		close(idleConnsClosed)
@@ -67,7 +67,7 @@ func main() {
 
 	log.Printf("OptiPix API starting on :%s", cfg.Port)
 	log.Printf("Max upload size: %d bytes", cfg.MaxUploadSize)
-	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+	if err := server.ListenAndServe(); err != http.ErrServerClosed {
 		log.Fatalf("Server ListenAndServe Error: %v", err)
 	}
 
