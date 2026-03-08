@@ -30,6 +30,7 @@ func main() {
 
 	router.Use(middleware.Logger)
 	router.Use(middleware.MaxBodySize(cfg.MaxUploadSize))
+	router.Use(middleware.IPRateLimiter(cfg.RateLimitPerMinute))
 
 	router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{cfg.CorsOrigin},
@@ -51,7 +52,6 @@ func main() {
 		Handler: router,
 	}
 
-	// Graceful shutdown
 	idleConnsClosed := make(chan struct{})
 	go func() {
 		sigint := make(chan os.Signal, 1)

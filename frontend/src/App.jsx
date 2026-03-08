@@ -3,6 +3,7 @@ import { useOptimizer } from './hooks/useOptimizer';
 import DropZone from './components/DropZone';
 import OptionsPanel from './components/OptionsPanel';
 import FileList from './components/FileList';
+import optipixLogo from './assets/optipix-logo.svg';
 import './styles.css';
 
 function App() {
@@ -37,9 +38,7 @@ function App() {
             <header className="header">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <div className="header__logo">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                        </svg>
+                        <img src={optipixLogo} alt="OptiPix Logo" width="24" height="24" />
                     </div>
                     <div>
                         <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700, color: 'var(--text)' }}>OptiPix</h1>
@@ -65,6 +64,32 @@ function App() {
                         onDownloadAll={downloadAll}
                         onClear={clearAll}
                     />
+
+                    <div className="info-grid">
+                        <div className="info-card">
+                            <h4 style={{ margin: '0 0 12px 0' }}>How it works</h4>
+                            <ol style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                                <li style={{ marginBottom: '8px' }}>Drop your images or SVGs</li>
+                                <li style={{ marginBottom: '8px' }}>Choose output format and quality</li>
+                                <li style={{ marginBottom: '8px' }}>Images are processed blazingly fast by libvips in Go</li>
+                                <li>Download your optimized files</li>
+                            </ol>
+                        </div>
+
+                        <div className="info-card info-card--tech">
+                            <h4 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                </svg>
+                                Engine
+                            </h4>
+                            <p style={{ margin: 0, fontSize: '0.85rem', lineHeight: 1.5 }}>
+                                Powered by <strong>govips</strong> (Go bindings for libvips) for raster images and <strong>SVGO</strong> for vector graphics. Processing is stateless and files are not stored on the server.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="main__right">
@@ -75,30 +100,6 @@ function App() {
                         onProcess={() => processAll(options)}
                         processing={processing}
                     />
-
-                    <div className="info-card">
-                        <h4 style={{ margin: '0 0 12px 0' }}>How it works</h4>
-                        <ol style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                            <li style={{ marginBottom: '8px' }}>Drop your images or SVGs</li>
-                            <li style={{ marginBottom: '8px' }}>Choose output format and quality</li>
-                            <li style={{ marginBottom: '8px' }}>Images are processed blazingly fast by libvips in Go</li>
-                            <li>Download your optimized files</li>
-                        </ol>
-                    </div>
-
-                    <div className="info-card info-card--tech">
-                        <h4 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="16" x2="12" y2="12"></line>
-                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                            </svg>
-                            Engine
-                        </h4>
-                        <p style={{ margin: 0, fontSize: '0.85rem', lineHeight: 1.5 }}>
-                            Powered by <strong>govips</strong> (Go bindings for libvips) for raster images and <strong>SVGO</strong> for vector graphics. Processing is stateless and files are not stored on the server.
-                        </p>
-                    </div>
                 </div>
             </main>
 

@@ -73,8 +73,6 @@ func (handler *Handler) Optimize(writer http.ResponseWriter, request *http.Reque
 		return
 	}
 
-	// Adquirimos el "ticket" del semáforo. Si se cancela la petición antes de que
-	// haya un hueco libre, salimos e interrumpimos el proceso.
 	select {
 	case handler.semaphore <- struct{}{}:
 		defer func() { <-handler.semaphore }()
@@ -100,7 +98,7 @@ func (handler *Handler) Optimize(writer http.ResponseWriter, request *http.Reque
 
 	result, err := processor.OptimizeImage(request.Context(), data, opts)
 	if err != nil {
-		writeError(writer, http.StatusInternalServerError, err.Error())
+		writeError(writer, http.StatusInternalServerError, cleanErrorMsg(err))
 		return
 	}
 
@@ -142,7 +140,6 @@ func (h *Handler) OptimizeSVG(writer http.ResponseWriter, request *http.Request)
 		return
 	}
 
-	// Hacemos exactamente lo mismo para SVGO: control concurrente con contexto.
 	select {
 	case h.semaphore <- struct{}{}:
 		defer func() { <-h.semaphore }()
@@ -168,7 +165,7 @@ func (h *Handler) OptimizeSVG(writer http.ResponseWriter, request *http.Request)
 
 	result, err := processor.OptimizeSVG(request.Context(), data, opts, h.cfg.SVGOPath)
 	if err != nil {
-		writeError(writer, http.StatusInternalServerError, err.Error())
+		writeError(writer, http.StatusInternalServerError, cleanErrorMsg(err))
 		return
 	}
 
@@ -273,4 +270,12 @@ func replaceExt(name, newExt string) string {
 		return name + newExt
 	}
 	return strings.TrimSuffix(name, ext) + newExt
+}
+
+func cleanErrorMsg(err error) string {
+	msg := err.Error()
+	if idx := strings.Index(msg, "Stack:"); idx != -1 {
+		msg = strings.TrimSpace(msg[:idx])
+	}
+	return msg
 }

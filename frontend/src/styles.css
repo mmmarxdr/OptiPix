@@ -12,15 +12,15 @@
   --text-dim: #8da69a;
   --accent: #059669;
   --accent-light: #10b981;
-  --accent-glow: rgba(5,150,105,0.08);
+  --accent-glow: rgba(5, 150, 105, 0.08);
   --accent-bold: #047857;
   --green: #059669;
-  --green-light: rgba(5,150,105,0.1);
+  --green-light: rgba(5, 150, 105, 0.1);
   --red: #e11d48;
-  --red-light: rgba(225,29,72,0.06);
+  --red-light: rgba(225, 29, 72, 0.06);
   --orange: #d97706;
-  --shadow: 0 1px 3px rgba(0,40,20,0.04), 0 4px 12px rgba(0,40,20,0.03);
-  --shadow-hover: 0 2px 8px rgba(0,40,20,0.06), 0 8px 24px rgba(0,40,20,0.05);
+  --shadow: 0 1px 3px rgba(0, 40, 20, 0.04), 0 4px 12px rgba(0, 40, 20, 0.03);
+  --shadow-hover: 0 2px 8px rgba(0, 40, 20, 0.06), 0 8px 24px rgba(0, 40, 20, 0.05);
   --radius: 14px;
   --radius-sm: 8px;
   --font-display: 'Outfit', system-ui, sans-serif;
@@ -44,7 +44,10 @@ body {
 /* Background Effects */
 .bg-grain {
   position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background-image: radial-gradient(var(--border) 1px, transparent 1px);
   background-size: 20px 20px;
   opacity: 0.25;
@@ -54,7 +57,10 @@ body {
 
 .bg-glow--1 {
   position: fixed;
-  top: -10vw; left: -10vw; width: 40vw; height: 40vw;
+  top: -10vw;
+  left: -10vw;
+  width: 40vw;
+  height: 40vw;
   background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
   filter: blur(100px);
   pointer-events: none;
@@ -63,7 +69,10 @@ body {
 
 .bg-glow--2 {
   position: fixed;
-  bottom: -10vw; right: -10vw; width: 30vw; height: 30vw;
+  bottom: -10vw;
+  right: -10vw;
+  width: 30vw;
+  height: 30vw;
   background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
   filter: blur(100px);
   pointer-events: none;
@@ -93,6 +102,12 @@ body {
 .main__right {
   display: flex;
   flex-direction: column;
+  gap: 24px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 24px;
 }
 
@@ -298,6 +313,7 @@ body {
 
 .quality-slider {
   -webkit-appearance: none;
+  appearance: none;
   width: 100%;
   height: 6px;
   background: var(--border);
@@ -315,7 +331,7 @@ body {
   background: var(--bg-raised);
   border: 2px solid var(--accent);
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.1s;
 }
 
@@ -339,8 +355,15 @@ body {
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .option-row {
@@ -368,6 +391,7 @@ body {
   background: var(--bg);
   outline: none;
   transition: var(--transition);
+  width: 100%;
 }
 
 .option-input:focus {
@@ -387,6 +411,73 @@ body {
   accent-color: var(--accent);
   width: 16px;
   height: 16px;
+}
+
+/* Tooltips */
+.label-with-tooltip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.label-with-tooltip label {
+  margin: 0;
+}
+
+.tooltip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--border);
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: bold;
+  cursor: help;
+  position: relative;
+  transition: var(--transition);
+}
+
+.tooltip-icon:hover {
+  background: var(--accent);
+  color: white;
+}
+
+.tooltip-text {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background: var(--text);
+  color: white;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 400;
+  white-space: normal;
+  width: 220px;
+  text-align: center;
+  line-height: 1.4;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 100;
+  box-shadow: var(--shadow-hover);
+  pointer-events: none;
+}
+
+.tooltip-text strong {
+  color: var(--accent-light);
+  display: block;
+  margin-top: 4px;
+}
+
+.tooltip-icon:hover .tooltip-text {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-12px);
 }
 
 /* Process Button */
@@ -455,6 +546,7 @@ body {
 .btn--danger {
   color: var(--red);
 }
+
 .btn--danger:hover {
   background: var(--red-light);
 }
@@ -671,7 +763,7 @@ body {
 .spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(255,255,255,0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-top-color: white;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -687,7 +779,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Footer */
@@ -704,6 +798,11 @@ body {
   .main {
     grid-template-columns: 1fr;
   }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
   .header .badge {
     display: none;
   }

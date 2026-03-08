@@ -1,5 +1,5 @@
-# Build stage
-FROM node:20-alpine AS builder
+# Base stage (para desarrollo, no hace el build)
+FROM node:20-alpine AS base
 
 WORKDIR /app
 
@@ -7,8 +7,11 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# Copiamos el resto del codigo y construimos
+# Copiamos el resto del codigo
 COPY . .
+
+# Build stage (hereda de base y compila para produccion)
+FROM base AS builder
 RUN npm run build
 
 # Server stage con Nginx

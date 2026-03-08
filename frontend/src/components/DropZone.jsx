@@ -28,22 +28,38 @@ export default function DropZone({ onFiles, disabled }) {
         e.stopPropagation();
     };
 
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB frontend hard-limit
+
+    const processFiles = (filesList) => {
+        if (disabled) return;
+
+        const validFiles = Array.from(filesList).filter(file => {
+            if (file.size > MAX_FILE_SIZE) {
+                alert(`File "${file.name}" is too large. Max size is 10 MB.`);
+                return false;
+            }
+            return true;
+        });
+
+        if (validFiles.length > 0) {
+            onFiles(validFiles);
+        }
+    };
+
     const handleDrop = (e) => {
         e.preventDefault();
         e.stopPropagation();
         setIsDragActive(false);
         dragCounter.current = 0;
-        if (disabled) return;
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            onFiles(e.dataTransfer.files);
+            processFiles(e.dataTransfer.files);
             e.dataTransfer.clearData();
         }
     };
 
     const handleChange = (e) => {
-        if (disabled) return;
         if (e.target.files && e.target.files.length > 0) {
-            onFiles(e.target.files);
+            processFiles(e.target.files);
             e.target.value = null; // reset
         }
     };
@@ -91,7 +107,7 @@ export default function DropZone({ onFiles, disabled }) {
                 {isDragActive ? 'Drop files here' : 'Drag & drop files here'}
             </div>
             <div className="dropzone__subtitle">
-                Supports JPEG, PNG, WebP, SVG, AVIF and more
+                Max 10MB per file. Supports JPEG, PNG, WebP, SVG, AVIF and more.
             </div>
         </div>
     );

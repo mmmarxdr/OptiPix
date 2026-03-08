@@ -37,7 +37,11 @@ function FileRow({ item, result, onRemove, onDownload }) {
 
             <div className="file-row__status">
                 {status === 'processing' && <div className="spinner--sm"></div>}
-                {status === 'error' && <div className="file-row__error" style={{ color: 'var(--red)', fontSize: '0.8rem' }}>{error || 'Error'}</div>}
+                {status === 'error' && (
+                    <div className="file-row__error" title={error} style={{ color: 'var(--red)', fontSize: '0.85rem', fontWeight: '600', cursor: 'help' }}>
+                        Failed
+                    </div>
+                )}
                 {status === 'done' && (
                     <div className={`file-row__savings ${savings > 0 ? 'file-row__savings--positive' : 'file-row__savings--negative'}`}>
                         {savings > 0 ? '−' : '+'}{Math.abs(savings)}%

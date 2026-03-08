@@ -29,24 +29,18 @@ func DefaultSVGOptions() SVGOptions {
 }
 
 func OptimizeSVG(ctx context.Context, input []byte, opts SVGOptions, svgoPath string) (*SVGResult, error) {
-	// Usamos "-" que en Unix significa "Leer de Stdin / Escribir a Stdout"
 	args := []string{"-", "-o", "-", fmt.Sprintf("--precision=%d", opts.Precision)}
 	if opts.Multipass {
 		args = append(args, "--multipass")
 	}
 
-	// Usamos CommandContext para que el proceso de Node.js se mate automáticamente
-	// si el cliente web cancela la petición (ctx.Done())
 	cmd := exec.CommandContext(ctx, svgoPath, args...)
 
-	// El input (bytes) se conecta a la "entrada" estándar (stdin)
 	cmd.Stdin = bytes.NewReader(input)
 
-	// Preparamos un buffer en memoria para recolectar la salida
 	var out bytes.Buffer
 	cmd.Stdout = &out
 
-	// Y otro para recolectar errores en caso de que falle
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 
@@ -54,7 +48,6 @@ func OptimizeSVG(ctx context.Context, input []byte, opts SVGOptions, svgoPath st
 		return nil, fmt.Errorf("svgo failed: %w, stderr: %s", err, stderr.String())
 	}
 
-	// Extraemos los bytes optimizados directamente desde la memoria
 	outputData := out.Bytes()
 
 	return &SVGResult{

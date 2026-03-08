@@ -56,7 +56,6 @@ func DefaultOptions() ImageOptions {
 }
 
 func OptimizeImage(ctx context.Context, input []byte, opts ImageOptions) (*OptimizeResult, error) {
-	// Verificar si el cliente ya cerró la conexión antes de arrancar a procesar
 	if err := ctx.Err(); err != nil {
 		return nil, fmt.Errorf("request cancelled before image processing: %w", err)
 	}
@@ -95,14 +94,6 @@ func OptimizeImage(ctx context.Context, input []byte, opts ImageOptions) (*Optim
 		}
 	}
 
-	// For govips, removing metadata is usually done via a method or during export strips
-	if opts.StripMetadata {
-		// govips might not export Get/RemoveMetadata correctly in all versions,
-		// but typically it is handled correctly in the Export params.
-		// Still, we can attempt to remove metadata buffers if govips exposes it.
-		// Actually, setting it in ExportParams is usually enough.
-	}
-
 	var outputData []byte
 	var outputError error
 
@@ -118,7 +109,6 @@ func OptimizeImage(ctx context.Context, input []byte, opts ImageOptions) (*Optim
 		p := vips.NewAvifExportParams()
 		p.Quality = opts.Quality
 		p.Lossless = opts.Lossless
-		// Govips defines explicit exported attributes, we configure what's standard.
 		p.Speed = 9 - opts.Effort
 		if p.Speed < 0 {
 			p.Speed = 0
@@ -140,7 +130,6 @@ func OptimizeImage(ctx context.Context, input []byte, opts ImageOptions) (*Optim
 	case FormatPNG:
 		p := vips.NewPngExportParams()
 		p.Compression = 9
-		// p.StripMetadata = opts.StripMetadata // StripMetadata might be on jpeg/webp
 		p.Interlace = true
 		outputData, _, outputError = img.ExportPng(p)
 	default:
