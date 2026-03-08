@@ -1,9 +1,10 @@
-version: '3.8'
+version: "3.8"
 
 services:
   backend:
     build:
       context: ./backend
+      target: api
     ports:
       - "8090:8090"
     environment:
@@ -20,11 +21,29 @@ services:
   frontend:
     build:
       context: ./frontend
+      target: base
+    command: npm run dev
     ports:
-      - "5173:80"
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     depends_on:
       - backend
-    restart: unless-stopped
+
+  cli-worker:
+    build:
+      context: ./backend
+      target: cli
+    # Pasamos argumentos directamente al ENTRYPOINT del contenedor
+    command: ["-input", "/images", "-output", "/optimized", "-format", "avif", "-quality", "75"]
+    profiles: ["cli"] # Lo ocultamos para que no arranque con "docker-compose up"
+    volumes:
+      # Montas tu carpeta local con imágenes al contenedor
+      - ./sample-images/input:/images
+      - ./sample-images/output:/optimized
+      # Opcional: montar el archivo de estado
+      - ./sample-images/.optipix-state.json:/app/.optipix-state.json
 
 volumes:
   backend-temp:
