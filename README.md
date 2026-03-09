@@ -6,6 +6,10 @@ OptiPix is designed to be used in two distinct ways:
 1. **As a Self-Hosted Web App:** A beautifully clean drag-and-drop interface for end-users, powered by a robust backend API.
 2. **As a CLI Utility:** A standalone command-line tool built for seamless integration into CI/CD pipelines (GitHub Actions, GitLab CI, etc.) for automated file batch processing.
 
+
+<img width="1895" height="942" alt="image" src="https://github.com/user-attachments/assets/b9e34a2a-e919-45f6-b663-7cbba9ec1252" />
+
+
 ## Key Features
 
 - **Blazing Fast Performance:** Powered by Go under the hood, utilizing `libvips` (the fastest and most memory-efficient image processing library around) alongside `SVGO`.
