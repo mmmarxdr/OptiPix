@@ -41,7 +41,6 @@ body {
   min-height: 100vh;
 }
 
-/* Background Effects */
 .bg-grain {
   position: fixed;
   top: 0;
@@ -79,7 +78,6 @@ body {
   z-index: -1;
 }
 
-/* Layout */
 .app {
   max-width: 1280px;
   margin: 0 auto;
@@ -111,7 +109,6 @@ body {
   gap: 24px;
 }
 
-/* Header */
 .header {
   display: flex;
   justify-content: space-between;
@@ -745,7 +742,6 @@ body {
   gap: 8px;
 }
 
-/* Info Cards */
 .info-card {
   background: var(--bg-raised);
   border-radius: var(--radius);
@@ -759,7 +755,6 @@ body {
   border-color: var(--border-light);
 }
 
-/* Spinner */
 .spinner {
   width: 20px;
   height: 20px;
@@ -784,7 +779,6 @@ body {
   }
 }
 
-/* Footer */
 .footer {
   text-align: center;
   margin-top: 64px;
@@ -793,7 +787,6 @@ body {
   font-size: 0.85rem;
 }
 
-/* Responsive */
 @media (max-width: 860px) {
   .main {
     grid-template-columns: 1fr;

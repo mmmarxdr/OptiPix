@@ -28,7 +28,7 @@ export default function DropZone({ onFiles, disabled }) {
         e.stopPropagation();
     };
 
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB frontend hard-limit
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
     const processFiles = (filesList) => {
         if (disabled) return;
@@ -60,7 +60,7 @@ export default function DropZone({ onFiles, disabled }) {
     const handleChange = (e) => {
         if (e.target.files && e.target.files.length > 0) {
             processFiles(e.target.files);
-            e.target.value = null; // reset
+            e.target.value = null;
         }
     };
 

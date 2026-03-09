@@ -35,14 +35,11 @@ services:
     build:
       context: ./backend
       target: cli
-    # Pasamos argumentos directamente al ENTRYPOINT del contenedor
     command: ["-input", "/images", "-output", "/optimized", "-format", "avif", "-quality", "75"]
-    profiles: ["cli"] # Lo ocultamos para que no arranque con "docker-compose up"
+    profiles: ["cli"] 
     volumes:
-      # Montas tu carpeta local con imágenes al contenedor
       - ./sample-images/input:/images
       - ./sample-images/output:/optimized
-      # Opcional: montar el archivo de estado
       - ./sample-images/.optipix-state.json:/app/.optipix-state.json
 
 volumes:
