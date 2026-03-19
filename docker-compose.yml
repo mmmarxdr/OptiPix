@@ -42,5 +42,16 @@ services:
       - ./sample-images/output:/optimized
       - ./sample-images/.optipix-state.json:/app/.optipix-state.json
 
+  # Profile-gated CLI service — does not start with 'docker compose up' by default.
+  # Usage: docker compose --profile cli run cli optipix optimize /data --recursive --write
+  cli:
+    build:
+      context: ./backend
+    command: optipix --help
+    volumes:
+      - ./data:/data
+    profiles:
+      - cli
+
 volumes:
   backend-temp:

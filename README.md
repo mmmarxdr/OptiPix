@@ -55,10 +55,103 @@ The simplest way to run the full OptiPix platform—whether locally on your comp
 
 Under the hood, OptiPix utilizes a **Multi-Stage Dockerfile**. If you only want the CLI, you won't download or host the web server binary. 
 
-To build the CLI-only Docker image:
+## CLI — optipix
+
+OptiPix includes a standalone command-line tool (`optipix`) for batch-optimizing local asset directories without a running server.
+
+### Installation
+
+**Docker (no local install required):**
+
 ```bash
-docker build --target cli -t optipix-cli ./backend
+docker run --rm -v $PWD:/work ghcr.io/optipix/cli optimize /work/src --write
 ```
+
+**Build from source** (requires Go 1.22+, libvips-dev, pkg-config):
+
+```bash
+cd backend
+go build -o optipix ./cmd/cli
+```
+
+### Usage
+
+Preview changes without writing any files (dry-run):
+
+```bash
+optipix optimize ./src/assets --format=auto --dry-run
+```
+
+Apply optimizations in-place:
+
+```bash
+optipix optimize ./src/assets --format=auto --write
+```
+
+Apply and rewrite all JS/TS/CSS/HTML/Markdown import references to the new filenames:
+
+```bash
+optipix optimize ./src/assets --write --rewrite-imports=./src
+```
+
+Single file with explicit format and quality:
+
+```bash
+optipix optimize ./photo.jpg --format=avif --quality=70 --write
+```
+
+### Exit codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Success (or dry-run complete) |
+| 1 | One or more optimization errors |
+| 2 | Import rewrite error |
+| 3 | Config / invocation error |
+
+---
+
+## Docker Image (CI/CD)
+
+Run the OptiPix CLI in any environment without installing Go, libvips, or SVGO locally. The image is published to `ghcr.io/optipix/cli` on every version tag push (`v*`).
+
+### Quick start
+
+```bash
+# Optimize all assets under ./src/assets and write results in-place
+docker run --rm -v $PWD:/work ghcr.io/optipix/cli optimize /work/src/assets --write
+
+# Dry-run preview (no files modified)
+docker run --rm -v $PWD:/work ghcr.io/optipix/cli optimize /work/src/assets --verbose
+
+# Specific format + quality
+docker run --rm -v $PWD:/work ghcr.io/optipix/cli optimize /work/src/assets --format=avif --quality=70 --write
+```
+
+### Use in GitHub Actions
+
+```yaml
+- name: Optimize assets
+  run: |
+    docker run --rm \
+      -v ${{ github.workspace }}:/work \
+      ghcr.io/optipix/cli:latest \
+      optimize /work/src/assets --write --verbose
+```
+
+### Available tags
+
+| Tag | Description |
+|-----|-------------|
+| `latest` | Latest stable release |
+| `v1.0.0` | Specific version (semver) |
+| `1.0` | Latest patch for major.minor |
+
+Published to: `ghcr.io/optipix/cli`
+
+---
+
+## Desarrollo local (Sin Docker)
 
 ### Running the CLI via Docker
 Because the image includes an `ENTRYPOINT`, you can treat the Docker invocation natively as a command. You just need to mount your local directories.
